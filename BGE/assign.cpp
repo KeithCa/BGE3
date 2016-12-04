@@ -31,9 +31,9 @@ bool assign::Initialise()
 
 	physicsFactory->CreateGroundPhysics();
 	physicsFactory->CreateCameraPhysics();
-	dynamicsWorld->setGravity(btVector3(0, -5.0f, 0));
+	dynamicsWorld->setGravity(btVector3(0, -9.0f, 0));
 
-	CreateDog(glm::vec3(0, 9, 0));
+	CreateDog(glm::vec3(0, 0, 0));
 	CreateMan(glm::vec3(20, 9, 0));
 
 
@@ -57,36 +57,36 @@ void BGE::assign::CreateDog(glm::vec3 position)
 	float z = 20;
 
 	glm::quat q = glm::angleAxis(-90.0f, glm::vec3(1, 0, 0));
-	shared_ptr<PhysicsController> body = physicsFactory->CreateCapsule(4, 5, glm::vec3(x, 15, z), q);
-	shared_ptr<PhysicsController> head = physicsFactory->CreateSphere(4.0f, glm::vec3(x, 15, z), glm::quat());
+	shared_ptr<PhysicsController> body = physicsFactory->CreateCapsule(2, 2.5, glm::vec3(x, 7, z), q);
+	shared_ptr<PhysicsController> head = physicsFactory->CreateSphere(2.0f, glm::vec3(x, 7, z), glm::quat());
 	btTransform t1, t2;
 	t1.setIdentity();
 	t2.setIdentity();
-	t1.setOrigin(btVector3(0, -6, 0));
-	t2.setRotation(GLToBtQuat(glm::angleAxis(-10.0f, glm::vec3(5, 2, 0)))); 
-	t2.setOrigin(btVector3(0, 6, 0));
+	t1.setOrigin(btVector3(0, -3, 0));
+	t2.setRotation(GLToBtQuat(glm::angleAxis(-10.0f, glm::vec3(2.5, 1, 0)))); 
+	t2.setOrigin(btVector3(0, 3, 0));
 	btFixedConstraint * headfixed = new btFixedConstraint(*head->rigidBody, *body->rigidBody, t1, t2);
 	dynamicsWorld->addConstraint(headfixed);
 
-	shared_ptr<PhysicsController> frontleftshoulderjoint = physicsFactory->CreateCylinder(1, 1, glm::vec3(x, 20, z), glm::quat());
-	shared_ptr<PhysicsController> frontleftleg = physicsFactory->CreateCapsule(1.5f, 4, glm::vec3(x + 5, 15, z), glm::quat());
-	shared_ptr<PhysicsController>  frontrightshoulderjoint = physicsFactory->CreateCylinder(1, 1, glm::vec3(x, 20, z), glm::quat());
-	shared_ptr<PhysicsController> frontrightleg = physicsFactory->CreateCapsule(1.5f, 4, glm::vec3(x + 5, 15, z), glm::quat());
-	shared_ptr<PhysicsController> backleftshoulderjoint = physicsFactory->CreateCylinder(1, 1, glm::vec3(x, 20, z), glm::quat());
-	shared_ptr<PhysicsController> backleftleg = physicsFactory->CreateCapsule(1.5f, 4, glm::vec3(x + 5, 15, z), glm::quat());
-	shared_ptr<PhysicsController> backrightshoulderjoint = physicsFactory->CreateCylinder(1, 1, glm::vec3(x, 20, z), glm::quat());
-	shared_ptr<PhysicsController> backrightleg = physicsFactory->CreateCapsule(1.5f, 4, glm::vec3(x + 5, 15, z), glm::quat());
+	shared_ptr<PhysicsController> frontleftshoulderjoint = physicsFactory->CreateCylinder(.5, .5, glm::vec3(x, 13, z), glm::quat());
+	shared_ptr<PhysicsController> frontleftleg = physicsFactory->CreateCapsule(.75f, 1, glm::vec3(x + 2.5, 7, z), glm::quat());
+	shared_ptr<PhysicsController>  frontrightshoulderjoint = physicsFactory->CreateCylinder(.5, .5, glm::vec3(x, 13, z), glm::quat());
+	shared_ptr<PhysicsController> frontrightleg = physicsFactory->CreateCapsule(.75f, 1, glm::vec3(x + 2.5, 7, z), glm::quat());
+	shared_ptr<PhysicsController> backleftshoulderjoint = physicsFactory->CreateCylinder(.5, .5, glm::vec3(x, 13, z), glm::quat());
+	shared_ptr<PhysicsController> backleftleg = physicsFactory->CreateCapsule(.75, 1, glm::vec3(x + 2.5, 7, z), glm::quat());
+	shared_ptr<PhysicsController> backrightshoulderjoint = physicsFactory->CreateCylinder(.5, .5, glm::vec3(x, 13, z), glm::quat());
+	shared_ptr<PhysicsController> backrightleg = physicsFactory->CreateCapsule(.75, 1, glm::vec3(x + 2.5, 7, z), glm::quat());
 
-	btHingeConstraint *frontleftshoulder = new btHingeConstraint(*frontleftshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, 1, 0), btVector3(4, 7, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *frontleftshoulderleg = new btHingeConstraint(*frontleftleg->rigidBody, *frontleftshoulderjoint->rigidBody, btVector3(0, 7, 0), btVector3(1, 1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *frontrightshoulder = new btHingeConstraint(*frontrightshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, -1, 0), btVector3(-4, 7, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *frontrightshoulderleg = new btHingeConstraint(*frontrightleg->rigidBody, *frontrightshoulderjoint->rigidBody, btVector3(0, 7, 0), btVector3(1, -1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *backleftshoulder = new btHingeConstraint(*backleftshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, -1, 0), btVector3(-4, -7, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *backleftshoulderleg = new btHingeConstraint(*backleftleg->rigidBody, *backleftshoulderjoint->rigidBody, btVector3(0, 7, 0), btVector3(1, -1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *backrightshoulder = new btHingeConstraint(*backrightshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, 1, 0), btVector3(4, -7, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *backrightshoulderleg = new btHingeConstraint(*backrightleg->rigidBody, *backrightshoulderjoint->rigidBody, btVector3(0, 7, 0), btVector3(1, 1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *frontleftshoulder = new btHingeConstraint(*frontleftshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, .5, 0), btVector3(2, 3.5, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *frontleftshoulderleg = new btHingeConstraint(*frontleftleg->rigidBody, *frontleftshoulderjoint->rigidBody, btVector3(0, 3.5, 0), btVector3(1, 1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *frontrightshoulder = new btHingeConstraint(*frontrightshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, -.5, 0), btVector3(-2, 3.5, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *frontrightshoulderleg = new btHingeConstraint(*frontrightleg->rigidBody, *frontrightshoulderjoint->rigidBody, btVector3(0, 3.5, 0), btVector3(1, -1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *backleftshoulder = new btHingeConstraint(*backleftshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, -.5, 0), btVector3(-2, -3.5, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *backleftshoulderleg = new btHingeConstraint(*backleftleg->rigidBody, *backleftshoulderjoint->rigidBody, btVector3(0, 3.5, 0), btVector3(1, -1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *backrightshoulder = new btHingeConstraint(*backrightshoulderjoint->rigidBody, *body->rigidBody, btVector3(0, .5, 0), btVector3(2, -3.5, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *backrightshoulderleg = new btHingeConstraint(*backrightleg->rigidBody, *backrightshoulderjoint->rigidBody, btVector3(0, 3.5, 0), btVector3(1, 1, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), false);
 
-	float MaxMotor = -30.0f;
+	float MaxMotor = -50.0f;
 	bool IsEnabled = true;
 	float Low = -1.5f;
 	float High = 1.5f;
@@ -114,8 +114,8 @@ void BGE::assign::CreateDog(glm::vec3 position)
 	dynamicsWorld->addConstraint(backrightshoulderleg);
 
 
-	shared_ptr<PhysicsController> tail = physicsFactory->CreateCapsule(1, 3, glm::vec3(x + 5, 8, z - 5), glm::quat());
-	btHingeConstraint * hingetail = new btHingeConstraint(*tail->rigidBody, *body->rigidBody, btVector3(0, 4, 0), btVector3(0, -13, 0), btVector3(1, 1, 1), btVector3(0, 1, 0), false);
+	shared_ptr<PhysicsController> tail = physicsFactory->CreateCapsule(.5, .5, glm::vec3(x + 2.5, 4, z - 2.5), glm::quat());
+	btHingeConstraint * hingetail = new btHingeConstraint(*tail->rigidBody, *body->rigidBody, btVector3(0, 2, 0), btVector3(0, -5, 0), btVector3(1, 1, 1), btVector3(0, 1, 0), false);
 	dynamicsWorld->addConstraint(hingetail);
 	//hingetail->enableAngularMotor(true, 20.0f, 20.0f);
 
