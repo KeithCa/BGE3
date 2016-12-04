@@ -33,8 +33,9 @@ bool assign::Initialise()
 	physicsFactory->CreateCameraPhysics();
 	dynamicsWorld->setGravity(btVector3(0, -9.0f, 0));
 
-	CreateDog(glm::vec3(0, 0, 0));
+	
 	CreateMan(glm::vec3(20, 9, 0));
+	CreateDog(glm::vec3(0, 0, 0));
 
 
 	return Game::Initialise();
@@ -49,6 +50,43 @@ void BGE::assign::Update()
 void BGE::assign::Cleanup()
 {
 	Game::Cleanup();
+}
+
+void BGE::assign::CreateMan(glm::vec3 position){
+	float bodyX = 4.0f;
+	float bodyY = 7.0f;
+	glm::quat q = glm::angleAxis(-90.0f, glm::vec3(0, 1, 0));
+	glm::quat q2 = glm::angleAxis(-90.0f, glm::vec3(0, 0, 1));
+	std::shared_ptr<GameComponent> base_ = make_shared<Box>(bodyX, bodyY, 2.0f);
+	std::shared_ptr<PhysicsController> base = physicsFactory->CreateBox(bodyX, bodyY, 2.0f, position, base_->transform->orientation, false, true);
+	std::shared_ptr<PhysicsController> rleg = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x + 3, position.y - 4.5f, position.z), q);
+	std::shared_ptr<PhysicsController> lleg = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x - 3, position.y - 4.5f, position.z), q);
+	std::shared_ptr<PhysicsController> rhand = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x + 5, position.y + 2.5f, position.z), q2);
+	std::shared_ptr<PhysicsController> lhand = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x - 5, position.y + 2.5f, position.z), q2);
+
+
+	std::shared_ptr<PhysicsController> head = physicsFactory->CreateSphere(2.0f, glm::vec3(position.x, position.y + 5.5f, position.z), glm::quat());
+	btTransform t1, t2;
+	t1.setIdentity();
+	t2.setIdentity();
+	t1.setOrigin(btVector3(0, -2, 0));
+	t2.setOrigin(btVector3(0, 4, 0));
+
+	btFixedConstraint * headfixed = new btFixedConstraint(*head->rigidBody, *base->rigidBody, t1, t2);
+	btHingeConstraint *rleghinge = new btHingeConstraint(*rleg->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(3, -3, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *lleghinge = new btHingeConstraint(*lleg->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(-3, -3, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), false);
+	btHingeConstraint *rhandhinge = new btHingeConstraint(*rhand->rigidBody, *base->rigidBody, btVector3(0, -1.5f, 0), btVector3(3, 3, 0), btVector3(1, 1, 1), btVector3(1, 1, 1), false);
+	btHingeConstraint *lhandhinge = new btHingeConstraint(*lhand->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(-3, 3, 0), btVector3(1, 1, 1), btVector3(1, 1, 1), false);
+
+
+	rleghinge->enableAngularMotor(true, 20.0f, 20.0f);
+	lleghinge->enableAngularMotor(true, 20.0f, 20.0f);
+
+	dynamicsWorld->addConstraint(headfixed);
+	dynamicsWorld->addConstraint(lleghinge);
+	dynamicsWorld->addConstraint(rleghinge);
+	dynamicsWorld->addConstraint(lhandhinge);
+	dynamicsWorld->addConstraint(rhandhinge);
 }
 
 void BGE::assign::CreateDog(glm::vec3 position)
@@ -118,45 +156,5 @@ void BGE::assign::CreateDog(glm::vec3 position)
 	btHingeConstraint * hingetail = new btHingeConstraint(*tail->rigidBody, *body->rigidBody, btVector3(0, 2, 0), btVector3(0, -5, 0), btVector3(1, 1, 1), btVector3(0, 1, 0), false);
 	dynamicsWorld->addConstraint(hingetail);
 	//hingetail->enableAngularMotor(true, 20.0f, 20.0f);
-
-}
-
-void BGE::assign::CreateMan(glm::vec3 position){
-	float bodyX = 4.0f;
-	float bodyY = 7.0f;
-	glm::quat q = glm::angleAxis(-90.0f, glm::vec3(0, 1, 0));
-	glm::quat q2 = glm::angleAxis(-90.0f, glm::vec3(0, 0, 1));
-	std::shared_ptr<GameComponent> base_ = make_shared<Box>(bodyX, bodyY, 2.0f);
-	std::shared_ptr<PhysicsController> base = physicsFactory->CreateBox(bodyX, bodyY, 2.0f, position, base_->transform->orientation, false, true);
-	std::shared_ptr<PhysicsController> rleg = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x + 3, position.y - 4.5f, position.z), q);
-	std::shared_ptr<PhysicsController> lleg = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x - 3, position.y - 4.5f, position.z), q);
-	std::shared_ptr<PhysicsController> rhand = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x + 5, position.y + 2.5f, position.z), q2);
-	std::shared_ptr<PhysicsController> lhand = physicsFactory->CreateCapsule(.5, 1.5f, glm::vec3(position.x - 5, position.y + 2.5f, position.z), q2);
-
-	
-	std::shared_ptr<PhysicsController> head = physicsFactory->CreateSphere(2.0f, glm::vec3(position.x, position.y +5.5f, position.z), glm::quat());
-	btTransform t1, t2;
-	t1.setIdentity();
-	t2.setIdentity();
-	t1.setOrigin(btVector3(0, -2, 0));
-	t2.setOrigin(btVector3(0, 4, 0));
-
-	btFixedConstraint * headfixed = new btFixedConstraint(*head->rigidBody, *base->rigidBody, t1, t2);
-	btHingeConstraint *rleghinge = new btHingeConstraint(*rleg->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(3, -3, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *lleghinge = new btHingeConstraint(*lleg->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(-3, -3, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), false);
-	btHingeConstraint *rhandhinge = new btHingeConstraint(*rhand->rigidBody, *base->rigidBody, btVector3(0, -1.5f, 0), btVector3(3, 3, 0), btVector3(1, 1, 1), btVector3(1, 1, 1), false);
-	btHingeConstraint *lhandhinge = new btHingeConstraint(*lhand->rigidBody, *base->rigidBody, btVector3(0, 1.5f, 0), btVector3(-3, 3, 0), btVector3(1, 1, 1), btVector3(1, 1, 1), false);
-
-
-	rleghinge->enableAngularMotor(true, 20.0f, 20.0f);
-	lleghinge->enableAngularMotor(true, 20.0f, 20.0f);
-
-
-	dynamicsWorld->addConstraint(headfixed);
-	dynamicsWorld->addConstraint(lleghinge);
-	dynamicsWorld->addConstraint(rleghinge);
-	dynamicsWorld->addConstraint(lhandhinge);
-	dynamicsWorld->addConstraint(rhandhinge);
-
 
 }
